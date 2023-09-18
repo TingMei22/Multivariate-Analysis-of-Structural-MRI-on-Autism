@@ -1,4 +1,4 @@
-%author: Ting Mei, last edited: 29-08-2023
+%author: T Mei, last edited: 29-08-2023
 
 clear all;clc
 %path
