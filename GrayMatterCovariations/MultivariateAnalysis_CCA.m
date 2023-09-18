@@ -74,7 +74,6 @@ gra.BarWidth = 0.7;
 view([-270,90]);
 
 %behaviour part
-selected_filters=1; 
 hauffe_A_AD=cov(data_AD) * A_AD(:,selected_filters) * (cov((A_AD(:,selected_filters)'*data_AD')')^-1);
 [alb_a2_p alb_b2_p]=sort(abs(hauffe_A_AD(:,selected_filters)),'descend');
 alb_b2_p(:,1)
@@ -95,7 +94,6 @@ view([-270,90]);
 
 %hauffe for SR
 %brain part
-selected_filters=1; 
 hauffe_B_SR=cov(sub_courses_SR) * B_SR(:,selected_filters) * (cov((B_SR(:,selected_filters)'*sub_courses_SR')')^-1);
 
 [alb_a3_b alb_b3_b]=sort(abs(hauffe_B_SR(:,selected_filters)),'descend');
@@ -107,7 +105,6 @@ gra.BarWidth = 0.7;
 view([-270,90]);
 
 %behaviour part
-selected_filters=1; %here use the model order... a bot tricky, in oour case just 1, or the numbr of significant ones
 hauffe_A_SR=cov(data_SR) * A_SR(:,selected_filters) * (cov((A_SR(:,selected_filters)'*data_SR')')^-1);
 
 [alb_a3_p alb_b3_p]=sort(abs(hauffe_A_SR(:,selected_filters)),'descend');
@@ -129,14 +126,13 @@ view([-270,90]);
 
 
 % prepare for figure
-filter_order = 1;
 %ADI&ADOS
-proj_AD_clinical = data_AD * A_AD(:,filter_order); % CCA variate
-proj_AD_brain = sub_courses_AD * B_AD(:,filter_order);
+proj_AD_clinical = data_AD * A_AD(:,selected_filters); % CCA variate
+proj_AD_brain = sub_courses_AD * B_AD(:,selected_filters);
 [r_AD,p_AD]=corr(proj_AD_clinical,proj_AD_brain);
 %SRS&RBS&SSP
-proj_SR_clinical = data_SR * A_SR(:,filter_order); % CCA variate
-proj_SR_brain = sub_courses_SR * B_SR(:,filter_order);
+proj_SR_clinical = data_SR * A_SR(:,selected_filters); % CCA variate
+proj_SR_brain = sub_courses_SR * B_SR(:,selected_filters);
 [r_SR,p_SR]=corr(proj_SR_clinical,proj_SR_brain);
 
 % make plot of main cca mode scatter plots
@@ -193,26 +189,24 @@ ylim([ymin,ymax]);
 N_AD = size(data_AD,1);
 N_SR = size(data_SR,1);
 
-filter_order = 1;
 for pt = 1:10000;
     rand_indx1 = randperm(N_AD);
     rand_indx2 = randperm(N_AD);
     rand_beh = data_AD(rand_indx1,:);
     rand_brain = sub_courses_AD(rand_indx2,:);
     [X,Y,r_rand,U,V,STATS] = canoncorr(rand_beh,rand_brain);
-    r_perm = corr(rand_beh*X(:,filter_order),rand_brain*Y(:,filter_order));
+    r_perm = corr(rand_beh*X(:,selected_filters),rand_brain*Y(:,selected_filters));
     R_AD(pt) = r_perm;
 end
 subplot(2,2,3);
 histogram(R_AD,'Normalization','Probability','FaceColor',[0.3010 0.7450 0.9330], 'Edgecolor',[0.3010 0.7450 0.9330]);hold on
-scatter(r_AD(:,filter_order),0,'bx','LineWidth',2);
+scatter(r_AD(:,selected_filters),0,'bx','LineWidth',2);
 title('Randomized subjects, CCA r-values','FontSize',10,'FontWeight','normal');
-p_perm_AD = sum(R_AD > r_AD(:,filter_order))/numel(R_AD);
+p_perm_AD = sum(R_AD > r_AD(:,selected_filters))/numel(R_AD);
 str = sprintf('p = %.4f',p_perm_AD);
 text(0.55,0.08,str);
 xlim([0.5,1]);
 ylim([0,0.1]);
-
 
 for pt = 1:10000
     rand_indx1 = randperm(N_SR);
@@ -220,14 +214,14 @@ for pt = 1:10000
     rand_beh = data_SR(rand_indx1,:);
     rand_brain = sub_courses_SR(rand_indx2,:);
     [X,Y,r_rand,U,V,STATS] = canoncorr(rand_beh,rand_brain);
-    r_perm = corr(rand_beh*X(:,filter_order),rand_brain*Y(:,filter_order));
+    r_perm = corr(rand_beh*X(:,selected_filters),rand_brain*Y(:,selected_filters));
     R_SR(pt) = r_perm;
 end
 subplot(2,2,4);
 histogram(R_SR,'Normalization','Probability','FaceColor',[0.3010 0.7450 0.9330], 'Edgecolor',[0.3010 0.7450 0.9330]);hold on
-scatter(r_SR(:,filter_order),0,'bx','LineWidth',2);
+scatter(r_SR(:,selected_filters),0,'bx','LineWidth',2);
 title('Randomized subjects, CCA r-values','FontSize',10,'FontWeight','normal');
-p_perm_SR = sum(R_SR > r_SR(:,filter_order))/numel(R_SR);
+p_perm_SR = sum(R_SR > r_SR(:,selected_filters))/numel(R_SR);
 str = sprintf('p = %.4f',p_perm_SR);
 text(0.55,0.08,str);
 xlim([0.5,1]);
